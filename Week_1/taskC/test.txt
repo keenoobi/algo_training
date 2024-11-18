@@ -1,0 +1,10 @@
+def compress(lst):
+    ans = [lst[0]]
+    for now in ans[-1]:
+        if now != ans[-1]:
+            ans.append(now)
+    if len(ans) > 1 and set(ans[0]) == {'.'}:
+        ans.pop(0)
+    if len(ans) > 1 and set(ans[-1]) == {'.'}:
+        ans.pop()
+    return ans
