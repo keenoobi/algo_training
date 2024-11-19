@@ -45,7 +45,7 @@ func buildTree(n int, relations [][]string) []Person {
 
 	for i, relation := range relations {
 		child, parent := relation[0], relation[1]
-		childrens[relation[0]] = append(childrens[relation[0]], relation[1])
+		childrens[child] = append(childrens[child], parent)
 		people[i] = Person{Child: child, Parent: parent, Height: -1}
 	}
 
