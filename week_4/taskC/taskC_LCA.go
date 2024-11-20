@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 )
 
@@ -14,7 +13,11 @@ type Person struct {
 }
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	file, _ := os.Open("input.txt")
+
+	defer file.Close()
+
+	reader := bufio.NewReader(file)
 
 	nstr, _ := reader.ReadString('\n')
 	n := 0
@@ -32,34 +35,43 @@ func main() {
 		}
 	}
 
-	var root string
-	for name, person := range tree {
-		if person.Parent == "" {
-			root = name
+	for {
+		input, err := reader.ReadString('\n')
+
+		if err != nil {
 			break
 		}
+		elements := strings.Fields(input)
+		if len(elements) != 2 {
+			break
+		}
+		elem1, elem2 := elements[0], elements[1]
+
+		lca := findLCA(tree, elem1, elem2)
+		fmt.Println(lca)
 	}
-
-	calculateDepth(tree, root, 0)
-
-	names := make([]string, 0, len(tree))
-	for name := range tree {
-		names = append(names, name)
-	}
-
-	sort.Strings(names)
-
-	for _, name := range names {
-		fmt.Printf("%s %d\n", name, tree[name].Depth)
-	}
-
 }
 
-func calculateDepth(tree map[string]Person, name string, depth int) {
-	tree[name] = Person{Parent: tree[name].Parent, Depth: depth}
-	for child, person := range tree {
-		if person.Parent == name {
-			calculateDepth(tree, child, depth+1)
-		}
+func findLCA(tree map[string]Person, elem1, elem2 string) string {
+	path1 := getPathToRoot(tree, elem1)
+	path2 := getPathToRoot(tree, elem2)
+
+	i := 0
+	for i < len(path1) && i < len(path2) && path1[i] == path2[i] {
+		i++
 	}
+	return path1[i-1]
+}
+
+func getPathToRoot(tree map[string]Person, elem string) []string {
+	var path []string
+	for elem != "" {
+		path = append(path, elem)
+		elem = tree[elem].Parent
+	}
+
+	for i, j := 0, len(path)-1; i < j; i, j = i+1, j-1 {
+		path[i], path[j] = path[j], path[i]
+	}
+	return path
 }
