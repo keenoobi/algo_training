@@ -1,1 +1,1 @@
-# ya_algo_training
+# algo_training
