@@ -90,203 +90,125 @@ func min(a ...int64) int64 {
 	return m
 }
 
-// /* package main
+/* package main
 
-// import (
-// 	"bufio"
-// 	"fmt"
-// 	"os"
-// )
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
-// func main() {
-// 	// Буферизованный ввод и вывод
-// 	in := bufio.NewReader(os.Stdin)
-// 	out := bufio.NewWriter(os.Stdout)
-// 	defer out.Flush()
+func gcd(a, b int64) int64 {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	return a
+}
 
-// 	var n, x, y, z int
-// 	fmt.Fscan(in, &n, &x, &y, &z) // Считываем n, x, y, z
+func lcm(a, b int64) int64 {
+	if a == 0 || b == 0 {
+		return 0
+	}
+	return (a / gcd(a, b)) * b
+}
 
-// 	array := make([]int, n)
-// 	for i := 0; i < n; i++ {
-// 		fmt.Fscan(in, &array[i]) // Считываем последовательность
-// 	}
+func main() {
+	in := bufio.NewReader(os.Stdin)
+	out := bufio.NewWriter(os.Stdout)
+	defer out.Flush()
 
-// 	// Функция для вычисления операций
-// 	ops := func(num int, div int) int {
-// 		mod := num % div
-// 		if mod == 0 {
-// 			return 0
-// 		}
-// 		return div - mod
-// 	}
+	var n int
+	var x, y, z int64
+	fmt.Fscan(in, &n, &x, &y, &z)
 
-// 	// Находим минимальные операции для каждого делителя
-// 	minX := int(1 << 30)
-// 	minY := int(1 << 30)
-// 	minZ := int(1 << 30)
+	// Вычисляем LCM для всех пар и тройки
+	lcmXY := lcm(x, y)
+	lcmXZ := lcm(x, z)
+	lcmYZ := lcm(y, z)
+	lcmXYZ := lcm(lcmXY, z)
 
-// 	var opsX, opsY, opsZ int
+	a := make([]int64, n)
+	for i := 0; i < n; i++ {
+		fmt.Fscan(in, &a[i])
+	}
 
-// 	for _, num := range array {
-// 		opsX = ops(num, x)
-// 		if opsX < minX {
-// 			minX = opsX
-// 		}
-// 		opsY = ops(num, y)
-// 		if opsY < minY {
-// 			minY = opsY
-// 		}
-// 		opsZ = ops(num, z)
-// 		if opsZ < minZ {
-// 			minZ = opsZ
-// 		}
-// 	}
+	// Инициализация минимальных значений
+	minX := int64(1e18)
+	minY := int64(1e18)
+	minZ := int64(1e18)
+	minXY := int64(1e18)
+	minXZ := int64(1e18)
+	minYZ := int64(1e18)
+	minXYZ := int64(1e18)
 
-// 	var minOps int
-// 	if minX == minY && minX == minZ {
-// 		minOps = minX
-// 	} else if minX == minY {
-// 		minOps = minX + minZ
-// 	} else if minX == minZ {
-// 		minOps = minX + minY
-// 	} else if minY == minZ {
-// 		minOps = minX + minY
-// 	} else {
-// 		minOps = minX + minY + minZ
-// 	}
+	for _, num := range a {
+		// Вычисление стоимости для x, y, z
+		costX := (x - (num % x)) % x
+		costY := (y - (num % y)) % y
+		costZ := (z - (num % z)) % z
 
-// 	// Выводим сумму минимальных операций
-// 	fmt.Fprintln(out, minOps)
-// }
-// */
+		// Обновление минимальных значений
+		if costX < minX {
+			minX = costX
+		}
+		if costY < minY {
+			minY = costY
+		}
+		if costZ < minZ {
+			minZ = costZ
+		}
 
-// package main
+		// Вычисление стоимости для пар и тройки
+		costXY := (lcmXY - (num % lcmXY)) % lcmXY
+		if costXY < minXY {
+			minXY = costXY
+		}
 
-// import (
-// 	"bufio"
-// 	"fmt"
-// 	"os"
-// )
+		costXZ := (lcmXZ - (num % lcmXZ)) % lcmXZ
+		if costXZ < minXZ {
+			minXZ = costXZ
+		}
 
-// func main() {
-// 	in := bufio.NewReader(os.Stdin)
-// 	out := bufio.NewWriter(os.Stdout)
-// 	defer out.Flush()
+		costYZ := (lcmYZ - (num % lcmYZ)) % lcmYZ
+		if costYZ < minYZ {
+			minYZ = costYZ
+		}
 
-// 	var n, x, y, z int
-// 	fmt.Fscan(in, &n, &x, &y, &z)
+		costXYZ := (lcmXYZ - (num % lcmXYZ)) % lcmXYZ
+		if costXYZ < minXYZ {
+			minXYZ = costXYZ
+		}
+	}
 
-// 	array := make([]int, n)
-// 	for i := 0; i < n; i++ {
-// 		fmt.Fscan(in, &array[i])
-// 	}
+	// Вычисление всех возможных комбинаций
+	option1 := minX + minY + minZ
+	option2 := minXY + minZ
+	option3 := minXZ + minY
+	option4 := minYZ + minX
+	option5 := minXYZ
 
-// 	// Функция для вычисления операций до кратности div
-// 	ops := func(num, div int) int {
-// 		mod := num % div
-// 		if mod == 0 {
-// 			return 0
-// 		}
-// 		return div - mod
-// 	}
+	// Находим минимальный вариант
+	minOption := option1
+	if option2 < minOption {
+		minOption = option2
+	}
+	if option3 < minOption {
+		minOption = option3
+	}
+	if option4 < minOption {
+		minOption = option4
+	}
+	if option5 < minOption {
+		minOption = option5
+	}
 
-// 	// Минимальные операции для каждого делителя
-// 	minX, minY, minZ := int(1e9), int(1e9), int(1e9)
-// 	// Минимальные операции для комбинаций кратностей
-// 	minXY, minXZ, minYZ := int(1e9), int(1e9), int(1e9)
-// 	minXYZ := int(1e9)
+	// Учитываем случай, когда n < 3
+	if n < 2 {
+		minOption = minXYZ
+	}
 
-// 	idX := 0
-// 	idY := 0
-// 	idZ := 0
-
-// 	for i, num := range array {
-// 		opX := ops(num, x)
-// 		opY := ops(num, y)
-// 		opZ := ops(num, z)
-// 		opXY := ops(num, lcm(x, y))
-// 		opXZ := ops(num, lcm(x, z))
-// 		opYZ := ops(num, lcm(y, z))
-// 		opXYZ := ops(num, lcm3(x, y, z))
-
-// 		// Отдельные минимумы
-// 		if opX < minX {
-// 			minX = opX
-// 			idX = i
-// 		}
-// 		if opY < minY {
-// 			minY = opY
-// 			idY = i
-// 		}
-// 		if opZ < minZ {
-// 			minZ = opZ
-// 			idZ = i
-// 		}
-
-// 		// Комбинации
-// 		if opXY < minXY {
-// 			minXY = opXY
-// 		}
-// 		if opXZ < minXZ {
-// 			minXZ = opXZ
-// 		}
-// 		if opYZ < minYZ {
-// 			minYZ = opYZ
-// 		}
-
-// 		// Все три сразу
-// 		if opXYZ < minXYZ {
-// 			minXYZ = opXYZ
-// 		}
-
-// 	}
-
-// 	// fmt.Fprintln(out, minXY)
-// 	// fmt.Fprintln(out, minXZ)
-// 	// fmt.Fprintln(out, minYZ)
-// 	// fmt.Fprintln(out, minXYZ)
-
-// 	if minX+minY < minXY && idX != idY {
-// 		minXY = minX + minY
-// 	}
-// 	if minX+minZ < minXZ && idX != idZ {
-// 		minXZ = minX + minZ
-// 	}
-// 	if minY+minZ < minYZ && idY != idZ {
-// 		minYZ = minY + minZ
-// 	}
-
-// 	if minX+minYZ < minXYZ && idX != idY {
-// 		minXYZ = minX + minYZ
-// 	}
-// 	if minZ+minXY < minXYZ && idX != idZ {
-// 		minXYZ = minZ + minXY
-// 	}
-// 	if minY+minXZ < minXYZ && idY != idZ {
-// 		minXYZ = minY + minXZ
-// 	}
-
-// 	fmt.Fprintln(out, minXYZ)
-// }
-
-// // Функция для нахождения наибольшего общего делителя (НОД)
-// func gcd(a, b int) int {
-// 	for b != 0 {
-// 		a, b = b, a%b // Обновляем a и b
-// 	}
-// 	return a // Возвращаем НОД
-// }
-
-// // Функция для нахождения наименьшего общего кратного (НОК)
-// func lcm(a, b int) int {
-// 	return (a * b) / gcd(a, b) // Используем формулу для НОК
-// }
-
-// // Функция для нахождения наименьшего общего кратного (НОК) для трех чисел
-// func lcm3(a, b, c int) int {
-// 	return (a * b / gcd(a, b)) * c / gcd((a*b/gcd(a, b)), c)
-// }
+	fmt.Fprintln(out, minOption)
+} */
 
 /* package main
 
@@ -296,72 +218,110 @@ import (
 	"os"
 )
 
-// Функция нахождения НОК через НОД
-func gcd(a, b int) int {
+func gcd(a, b int64) int64 {
 	for b != 0 {
 		a, b = b, a%b
 	}
 	return a
 }
 
-func lcm(a, b int) int {
-	return a / gcd(a, b) * b
+func lcm(a, b int64) int64 {
+	if a == 0 || b == 0 {
+		return 0
+	}
+	return (a / gcd(a, b)) * b
 }
 
 func main() {
-	var n, x, y, z int
 	in := bufio.NewReader(os.Stdin)
 	out := bufio.NewWriter(os.Stdout)
-	fmt.Fscan(in, &n, &x, &y, &z)
 	defer out.Flush()
 
-	arr := make([]int, n)
+	var n int
+	var x, y, z int64
+	fmt.Fscan(in, &n, &x, &y, &z)
+
+	// Вычисляем LCM для всех пар и тройки
+	lcmXY := lcm(x, y)
+	lcmXZ := lcm(x, z)
+	lcmYZ := lcm(y, z)
+	lcmXYZ := lcm(lcmXY, z)
+
+	a := make([]int64, n)
 	for i := 0; i < n; i++ {
-		fmt.Fscan(in, &arr[i])
+		fmt.Fscan(in, &a[i])
 	}
 
-	Lxy := lcm(x, y)
-	Lxz := lcm(x, z)
-	Lyz := lcm(y, z)
-	Lxyz := lcm(Lxy, z)
+	// Инициализация минимальных значений
+	minX := int64(1e18)
+	minY := int64(1e18)
+	minZ := int64(1e18)
+	minXY := int64(1e18)
+	minXZ := int64(1e18)
+	minYZ := int64(1e18)
+	minXYZ := int64(1e18)
 
-	// Инициализируем переменные большим числом
-	const inf = 1 << 30
-	cx, cy, cz := inf, inf, inf
-	cxy, cxz, cyz, cxyz := inf, inf, inf, inf
+	for _, num := range a {
+		// Вычисление стоимости для x, y, z
+		costX := (x - (num % x)) % x
+		costY := (y - (num % y)) % y
+		costZ := (z - (num % z)) % z
 
-	for _, a := range arr {
-		dx := (x - a%x) % x
-		dy := (y - a%y) % y
-		dz := (z - a%z) % z
-		dxy := (Lxy - a%Lxy) % Lxy
-		dxz := (Lxz - a%Lxz) % Lxz
-		dyz := (Lyz - a%Lyz) % Lyz
-		dxyz := (Lxyz - a%Lxyz) % Lxyz
+		// Обновление минимальных значений
+		if costX < minX {
+			minX = costX
+		}
+		if costY < minY {
+			minY = costY
+		}
+		if costZ < minZ {
+			minZ = costZ
+		}
 
-		// Обновляем минимальные значения
-		cx = min(cx, dx)
-		cy = min(cy, dy)
-		cz = min(cz, dz)
-		cxy = min(cxy, dxy)
-		cxz = min(cxz, dxz)
-		cyz = min(cyz, dyz)
-		cxyz = min(cxyz, dxyz)
-	}
+		// Вычисление стоимости для пар и тройки
+		costXY := (lcmXY - (num % lcmXY)) % lcmXY
+		if costXY < minXY {
+			minXY = costXY
+		}
 
-	// Берем минимум из всех возможных комбинаций
-	result := min(cx+cy+cz, cxy+cz, cxz+cy, cyz+cx, cxyz)
-	fmt.Fprintln(out, cx+cy+cz, cxy+cz, cxz+cy, cyz+cx, cxyz)
+		costXZ := (lcmXZ - (num % lcmXZ)) % lcmXZ
+		if costXZ < minXZ {
+			minXZ = costXZ
+		}
 
-	fmt.Fprint(out, result)
-}
+		costYZ := (lcmYZ - (num % lcmYZ)) % lcmYZ
+		if costYZ < minYZ {
+			minYZ = costYZ
+		}
 
-func min(a ...int) int {
-	m := a[0]
-	for _, v := range a {
-		if v < m {
-			m = v
+		costXYZ := (lcmXYZ - (num % lcmXYZ)) % lcmXYZ
+		if costXYZ < minXYZ {
+			minXYZ = costXYZ
 		}
 	}
-	return m
-} */
+
+	// Вычисление всех возможных комбинаций
+	option1 := minX + minY + minZ
+	option2 := minXY + minZ
+	option3 := minXZ + minY
+	option4 := minYZ + minX
+	option5 := minXYZ
+
+	// Находим минимальный вариант
+	minOption := option1
+	if option2 < minOption {
+		minOption = option2
+	}
+	if option3 < minOption {
+		minOption = option3
+	}
+	if option4 < minOption {
+		minOption = option4
+	}
+	if option5 < minOption {
+		minOption = option5
+	}
+
+	fmt.Fprintln(out, minOption)
+}
+*/
